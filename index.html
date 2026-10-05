@@ -1,245 +1,199 @@
-
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>ESP32 Robot Car #4</title>
+<title>ESP32 CAR #4 Control</title>
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <style>
 
-/* =====================================================
-   PAGE
-   ===================================================== */
-
-body {
-
-  margin: 0;
-  padding: 0;
-
-  font-family: Arial, sans-serif;
-
-  background: #111;
-
-  color: white;
-
-  text-align: center;
+* {
+    box-sizing: border-box;
 }
 
-.container {
-
-  max-width: 500px;
-
-  margin: auto;
-
-  padding: 20px;
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    touch-action: manipulation;
 }
 
 h1 {
-
-  margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
-/* =====================================================
-   STATUS
-   ===================================================== */
-
-.status {
-
-  margin: 15px 0;
-
-  padding: 12px;
-
-  background: #222;
-
-  border-radius: 10px;
-
-  font-size: 18px;
+.status-box {
+    margin: 15px auto;
+    width: 90%;
+    max-width: 500px;
+    padding: 15px;
+    background: #222;
+    border-radius: 12px;
+    font-size: 18px;
 }
 
-.connected {
-
-  color: #00ff66;
+#mqttStatus {
+    font-weight: bold;
 }
 
-.disconnected {
-
-  color: #ff4444;
+#carStatus {
+    margin-top: 8px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
-/* =====================================================
-   SPEED
-   ===================================================== */
+/* SPEED */
 
-.speedBox {
+.speed-box {
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #222;
+    border-radius: 12px;
+}
 
-  margin: 20px 0;
+#speedValue {
+    font-size: 22px;
+    font-weight: bold;
 }
 
 input[type="range"] {
-
-  width: 100%;
-
-  cursor: pointer;
+    width: 90%;
 }
 
-.speedValue {
+/* CONTROL */
 
-  font-size: 20px;
-
-  margin-top: 8px;
+.controls {
+    width: 300px;
+    margin: 25px auto;
 }
 
-/* =====================================================
-   CONTROL
-   ===================================================== */
-
-.control {
-
-  display: grid;
-
-  grid-template-columns:
-    1fr 1fr 1fr;
-
-  gap: 12px;
-
-  max-width: 350px;
-
-  margin: 30px auto;
+.row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px 0;
 }
 
-/* =====================================================
-   BUTTON
-   ===================================================== */
+/* BUTTON */
 
-button {
+.control-btn {
+    width: 85px;
+    height: 85px;
 
-  height: 80px;
+    border: none;
+    border-radius: 18px;
 
-  font-size: 28px;
+    background: #333;
+    color: white;
 
-  font-weight: bold;
+    font-size: 32px;
+    font-weight: bold;
 
-  border: none;
+    cursor: pointer;
 
-  border-radius: 15px;
+    box-shadow:
+        0 8px 0 #111,
+        0 10px 15px rgba(0,0,0,0.5);
 
-  background: #333;
+    transition:
+        transform 0.06s ease,
+        background 0.06s ease,
+        box-shadow 0.06s ease,
+        filter 0.06s ease;
 
-  color: white;
+    user-select: none;
+    -webkit-user-select: none;
 
-  cursor: pointer;
-
-  user-select: none;
-
-  -webkit-user-select: none;
-
-  touch-action: none;
-
-  /* Smooth animation */
-
-  transition:
-
-    transform 0.08s ease,
-
-    background 0.08s ease,
-
-    box-shadow 0.08s ease;
+    touch-action: none;
 }
 
-/* =====================================================
-   BUTTON HOVER
-   ===================================================== */
+/* ตอนกด */
 
-button:hover {
+.control-btn.pressed {
+    transform: translateY(7px) scale(0.92);
 
-  background: #444;
+    background: #00aaff;
 
+    filter: brightness(1.5);
+
+    box-shadow:
+        0 2px 0 #006688,
+        0 3px 8px rgba(0,170,255,0.8);
 }
 
-/* =====================================================
-   BUTTON PRESSED
-   ===================================================== */
+/* รองรับ mouse */
 
-button.pressed {
+.control-btn:active {
+    transform: translateY(7px) scale(0.92);
 
-  transform:
+    background: #00aaff;
 
-    scale(0.92)
+    filter: brightness(1.5);
 
-    translateY(4px);
-
-  background: #666;
-
-  box-shadow:
-
-    0 2px 0 #000,
-
-    inset 0 3px 8px rgba(0,0,0,0.6);
-
+    box-shadow:
+        0 2px 0 #006688,
+        0 3px 8px rgba(0,170,255,0.8);
 }
 
-/* =====================================================
-   STOP BUTTON
-   ===================================================== */
+/* STOP */
 
-.stop {
+.stop-btn {
+    width: 100px;
+    height: 55px;
 
-  background: #8b0000;
+    margin-top: 10px;
 
+    border: none;
+    border-radius: 12px;
+
+    background: #cc2222;
+    color: white;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 0 #661111;
+
+    transition: all 0.06s ease;
 }
 
-.stop:hover {
+.stop-btn.pressed {
+    transform: translateY(5px) scale(0.94);
 
-  background: #a00000;
+    background: #ff4444;
 
+    box-shadow: 0 1px 0 #661111;
 }
 
-.stop.pressed {
-
-  background: #ff2020;
-
-  transform:
-
-    scale(0.92)
-
-    translateY(4px);
-
+.stop-btn:active {
+    transform: translateY(5px) scale(0.94);
 }
 
-/* =====================================================
-   ACTIVE MOVEMENT
-   ===================================================== */
+/* CONNECTION */
 
-button.active {
-
-  background: #555;
-
-  box-shadow:
-
-    0 0 15px rgba(255,255,255,0.25);
-
+.connected {
+    color: #00ff66;
 }
 
-/* =====================================================
-   INFO
-   ===================================================== */
+.disconnected {
+    color: #ff4444;
+}
 
 .info {
-
-  margin-top: 25px;
-
-  color: #aaa;
-
-  line-height: 1.7;
+    margin-top: 20px;
+    color: #aaa;
+    font-size: 14px;
 }
 
 </style>
@@ -248,622 +202,919 @@ button.active {
 
 <body>
 
-<div class="container">
-
 <h1>ESP32 ROBOT CAR #4</h1>
 
-<div class="status">
+<div class="status-box">
 
-MQTT:
+    <div>
+        MQTT:
+        <span id="mqttStatus" class="disconnected">
+            DISCONNECTED
+        </span>
+    </div>
 
-<span id="mqttStatus"
-      class="disconnected">
-
-DISCONNECTED
-
-</span>
-
-</div>
-
-<div class="status">
-
-CAR:
-
-<span id="carStatus">
-
-STOP
-
-</span>
+    <div id="carStatus">
+        CAR: STOP
+    </div>
 
 </div>
 
-<!-- =================================================
-     SPEED
-     ================================================= -->
 
-<div class="speedBox">
+<!-- SPEED -->
 
-<h3>Speed</h3>
+<div class="speed-box">
 
-<input
-  type="range"
-  id="speedSlider"
-  min="0"
-  max="1023"
-  value="600">
+    <div>
+        SPEED:
+        <span id="speedValue">600</span>
+    </div>
 
-<div class="speedValue">
+    <br>
 
-<span id="speedValue">600</span>
+    <input
+        type="range"
+        id="speedSlider"
+        min="0"
+        max="1023"
+        value="600"
+    >
+
+</div>
+
+
+<!-- CONTROL -->
+
+<div class="controls">
+
+    <!-- W -->
+
+    <div class="row">
+
+        <button
+            class="control-btn"
+            id="btnW"
+        >
+            W
+        </button>
+
+    </div>
+
+
+    <!-- A S D -->
+
+    <div class="row">
+
+        <button
+            class="control-btn"
+            id="btnA"
+        >
+            A
+        </button>
+
+        <button
+            class="control-btn"
+            id="btnS"
+        >
+            S
+        </button>
+
+        <button
+            class="control-btn"
+            id="btnD"
+        >
+            D
+        </button>
+
+    </div>
+
+
+    <!-- STOP -->
+
+    <button
+        class="stop-btn"
+        id="btnStop"
+    >
+        STOP
+    </button>
 
 </div>
 
-</div>
-
-<!-- =================================================
-     CONTROL
-     ================================================= -->
-
-<div class="control">
-
-<button
-  class="forward"
-  data-command="W_ON"
-  data-key="w">
-
-W
-
-</button>
-
-<button
-  class="left"
-  data-command="A_ON"
-  data-key="a">
-
-A
-
-</button>
-
-<button
-  class="stop"
-  id="stopButton">
-
-STOP
-
-</button>
-
-<button
-  class="right"
-  data-command="D_ON"
-  data-key="d">
-
-D
-
-</button>
-
-<button
-  class="backward"
-  data-command="S_ON"
-  data-key="s">
-
-S
-
-</button>
-
-</div>
 
 <div class="info">
 
-<b>Keyboard Control</b>
-
-<br>
-
-W = Forward
-
-<br>
-
-A = Left
-
-<br>
-
-S = Backward
-
-<br>
-
-D = Right
-
-<br>
-
-Release = STOP
+    W = Forward<br>
+    S = Backward<br>
+    A = Left<br>
+    D = Right<br>
+    Release = Stop
 
 </div>
 
-</div>
 
 <script>
 
 /* =====================================================
-   MQTT
+   MQTT SETTINGS
    ===================================================== */
 
 const MQTT_BROKER =
-"wss://broker.hivemq.com:8884/mqtt";
+    "wss://broker.hivemq.com:8884/mqtt";
 
 const MQTT_TOPIC =
-"esp/car4";
+    "esp/car4";
 
-const client =
-mqtt.connect(MQTT_BROKER);
 
 /* =====================================================
-   ELEMENTS
+   MQTT CLIENT
+   ===================================================== */
+
+let client = null;
+
+
+/* =====================================================
+   STATUS
    ===================================================== */
 
 const mqttStatus =
-document.getElementById(
-  "mqttStatus"
-);
+    document.getElementById("mqttStatus");
 
 const carStatus =
-document.getElementById(
-  "carStatus"
-);
+    document.getElementById("carStatus");
 
-const buttons =
-document.querySelectorAll(
-  "[data-command]"
-);
+
+function updateCarStatus(text) {
+
+    carStatus.innerText =
+        "CAR: " + text;
+
+}
+
 
 /* =====================================================
    MQTT CONNECT
    ===================================================== */
 
-client.on("connect", function() {
+function connectMQTT() {
 
-  console.log(
-    "MQTT CONNECTED"
-  );
+    console.log("Connecting to MQTT...");
 
-  mqttStatus.textContent =
-  "CONNECTED";
+    client = mqtt.connect(MQTT_BROKER, {
 
-  mqttStatus.className =
-  "connected";
+        clientId:
+            "WEB_CAR4_" +
+            Math.random()
+                .toString(16)
+                .substring(2),
 
-});
+        clean: true,
 
-client.on("error", function(error) {
+        connectTimeout: 5000,
 
-  console.log(
-    "MQTT ERROR:",
-    error
-  );
+        reconnectPeriod: 3000
 
-});
+    });
 
-client.on("close", function() {
 
-  mqttStatus.textContent =
-  "DISCONNECTED";
+    client.on("connect", function () {
 
-  mqttStatus.className =
-  "disconnected";
+        console.log("MQTT CONNECTED");
 
-});
+        mqttStatus.innerText =
+            "CONNECTED";
+
+        mqttStatus.className =
+            "connected";
+
+    });
+
+
+    client.on("reconnect", function () {
+
+        console.log("MQTT RECONNECTING...");
+
+        mqttStatus.innerText =
+            "RECONNECTING";
+
+        mqttStatus.className =
+            "disconnected";
+
+    });
+
+
+    client.on("error", function (error) {
+
+        console.log(
+            "MQTT ERROR:",
+            error
+        );
+
+    });
+
+
+    client.on("close", function () {
+
+        console.log(
+            "MQTT DISCONNECTED"
+        );
+
+        mqttStatus.innerText =
+            "DISCONNECTED";
+
+        mqttStatus.className =
+            "disconnected";
+
+    });
+
+}
+
 
 /* =====================================================
-   SEND COMMAND
+   SEND MQTT COMMAND
    ===================================================== */
 
 function sendCommand(command) {
 
-  if (!client.connected) {
-
     console.log(
-      "MQTT NOT CONNECTED"
+        "SEND:",
+        command
     );
 
-    return;
-  }
 
-  client.publish(
-    MQTT_TOPIC,
-    command
-  );
+    if (
+        client &&
+        client.connected
+    ) {
 
-  console.log(
-    "SEND:",
-    command
-  );
+        client.publish(
+            MQTT_TOPIC,
+            command
+        );
 
-  updateStatus(command);
+        console.log(
+            "MQTT SENT:",
+            command
+        );
+
+    }
+    else {
+
+        console.log(
+            "MQTT NOT CONNECTED"
+        );
+
+    }
+
 }
 
+
 /* =====================================================
-   CAR STATUS
+   BUTTON EFFECT
    ===================================================== */
 
-function updateStatus(command) {
+function pressEffect(button) {
 
-  if (command === "W_ON") {
+    button.classList.add(
+        "pressed"
+    );
 
-    carStatus.textContent =
-    "FORWARD";
-  }
-
-  else if (command === "S_ON") {
-
-    carStatus.textContent =
-    "BACKWARD";
-  }
-
-  else if (command === "A_ON") {
-
-    carStatus.textContent =
-    "LEFT";
-  }
-
-  else if (command === "D_ON") {
-
-    carStatus.textContent =
-    "RIGHT";
-  }
-
-  else if (command === "STOP") {
-
-    carStatus.textContent =
-    "STOP";
-  }
 }
 
-/* =====================================================
-   BUTTON PRESS EFFECT
-   ===================================================== */
 
-function pressButton(button) {
+function releaseEffect(button) {
 
-  button.classList.add(
-    "pressed"
-  );
+    button.classList.remove(
+        "pressed"
+    );
 
-  button.classList.add(
-    "active"
-  );
 }
 
-/* =====================================================
-   BUTTON RELEASE EFFECT
-   ===================================================== */
-
-function releaseButton(button) {
-
-  button.classList.remove(
-    "pressed"
-  );
-
-  button.classList.remove(
-    "active"
-  );
-}
 
 /* =====================================================
-   MOUSE CONTROL
+   W - FORWARD
    ===================================================== */
 
-buttons.forEach(function(button) {
+const btnW =
+    document.getElementById("btnW");
 
-  const command =
-  button.dataset.command;
 
-  button.addEventListener(
+btnW.addEventListener(
     "mousedown",
-    function(event) {
+    function(e) {
 
-      event.preventDefault();
+        e.preventDefault();
 
-      pressButton(button);
+        pressEffect(btnW);
 
-      sendCommand(command);
+        sendCommand("W_ON");
+
+        updateCarStatus(
+            "FORWARD"
+        );
 
     }
-  );
+);
 
-  button.addEventListener(
+
+btnW.addEventListener(
     "mouseup",
-    function(event) {
+    function(e) {
 
-      event.preventDefault();
+        e.preventDefault();
 
-      releaseButton(button);
+        releaseEffect(btnW);
 
-      sendCommand("STOP");
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
 
     }
-  );
+);
 
-  button.addEventListener(
+
+btnW.addEventListener(
     "mouseleave",
     function() {
 
-      releaseButton(button);
-
-      sendCommand("STOP");
+        releaseEffect(btnW);
 
     }
-  );
+);
 
-  /* =================================================
-     TOUCH CONTROL
-     ================================================= */
 
-  button.addEventListener(
+/* TOUCH */
+
+btnW.addEventListener(
     "touchstart",
-    function(event) {
+    function(e) {
 
-      event.preventDefault();
+        e.preventDefault();
 
-      pressButton(button);
+        pressEffect(btnW);
 
-      sendCommand(command);
+        sendCommand("W_ON");
 
-    }
-  );
+        updateCarStatus(
+            "FORWARD"
+        );
 
-  button.addEventListener(
+    },
+    { passive: false }
+);
+
+
+btnW.addEventListener(
     "touchend",
-    function(event) {
+    function(e) {
 
-      event.preventDefault();
+        e.preventDefault();
 
-      releaseButton(button);
+        releaseEffect(btnW);
 
-      sendCommand("STOP");
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    },
+    { passive: false }
+);
+
+
+/* =====================================================
+   A - LEFT
+   ===================================================== */
+
+const btnA =
+    document.getElementById("btnA");
+
+
+btnA.addEventListener(
+    "mousedown",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnA);
+
+        sendCommand("A_ON");
+
+        updateCarStatus(
+            "LEFT"
+        );
 
     }
-  );
+);
 
-  button.addEventListener(
-    "touchcancel",
-    function(event) {
 
-      event.preventDefault();
+btnA.addEventListener(
+    "mouseup",
+    function(e) {
 
-      releaseButton(button);
+        e.preventDefault();
 
-      sendCommand("STOP");
+        releaseEffect(btnA);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
 
     }
-  );
+);
 
-});
+
+btnA.addEventListener(
+    "mouseleave",
+    function() {
+
+        releaseEffect(btnA);
+
+    }
+);
+
+
+btnA.addEventListener(
+    "touchstart",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnA);
+
+        sendCommand("A_ON");
+
+        updateCarStatus(
+            "LEFT"
+        );
+
+    },
+    { passive: false }
+);
+
+
+btnA.addEventListener(
+    "touchend",
+    function(e) {
+
+        e.preventDefault();
+
+        releaseEffect(btnA);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    },
+    { passive: false }
+);
+
+
+/* =====================================================
+   S - BACKWARD
+   ===================================================== */
+
+const btnS =
+    document.getElementById("btnS");
+
+
+btnS.addEventListener(
+    "mousedown",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnS);
+
+        sendCommand("S_ON");
+
+        updateCarStatus(
+            "BACKWARD"
+        );
+
+    }
+);
+
+
+btnS.addEventListener(
+    "mouseup",
+    function(e) {
+
+        e.preventDefault();
+
+        releaseEffect(btnS);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    }
+);
+
+
+btnS.addEventListener(
+    "mouseleave",
+    function() {
+
+        releaseEffect(btnS);
+
+    }
+);
+
+
+btnS.addEventListener(
+    "touchstart",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnS);
+
+        sendCommand("S_ON");
+
+        updateCarStatus(
+            "BACKWARD"
+        );
+
+    },
+    { passive: false }
+);
+
+
+btnS.addEventListener(
+    "touchend",
+    function(e) {
+
+        e.preventDefault();
+
+        releaseEffect(btnS);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    },
+    { passive: false }
+);
+
+
+/* =====================================================
+   D - RIGHT
+   ===================================================== */
+
+const btnD =
+    document.getElementById("btnD");
+
+
+btnD.addEventListener(
+    "mousedown",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnD);
+
+        sendCommand("D_ON");
+
+        updateCarStatus(
+            "RIGHT"
+        );
+
+    }
+);
+
+
+btnD.addEventListener(
+    "mouseup",
+    function(e) {
+
+        e.preventDefault();
+
+        releaseEffect(btnD);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    }
+);
+
+
+btnD.addEventListener(
+    "mouseleave",
+    function() {
+
+        releaseEffect(btnD);
+
+    }
+);
+
+
+btnD.addEventListener(
+    "touchstart",
+    function(e) {
+
+        e.preventDefault();
+
+        pressEffect(btnD);
+
+        sendCommand("D_ON");
+
+        updateCarStatus(
+            "RIGHT"
+        );
+
+    },
+    { passive: false }
+);
+
+
+btnD.addEventListener(
+    "touchend",
+    function(e) {
+
+        e.preventDefault();
+
+        releaseEffect(btnD);
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    },
+    { passive: false }
+);
+
 
 /* =====================================================
    STOP BUTTON
    ===================================================== */
 
-const stopButton =
-document.getElementById(
-  "stopButton"
+const btnStop =
+    document.getElementById("btnStop");
+
+
+btnStop.addEventListener(
+    "mousedown",
+    function(e) {
+
+        e.preventDefault();
+
+        btnStop.classList.add(
+            "pressed"
+        );
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    }
 );
 
-stopButton.addEventListener(
-  "mousedown",
-  function() {
 
-    pressButton(
-      stopButton
-    );
+btnStop.addEventListener(
+    "mouseup",
+    function() {
 
-    sendCommand("STOP");
+        btnStop.classList.remove(
+            "pressed"
+        );
 
-  }
+    }
 );
 
-stopButton.addEventListener(
-  "mouseup",
-  function() {
 
-    releaseButton(
-      stopButton
-    );
+btnStop.addEventListener(
+    "touchstart",
+    function(e) {
 
-  }
+        e.preventDefault();
+
+        btnStop.classList.add(
+            "pressed"
+        );
+
+        sendCommand("STOP");
+
+        updateCarStatus(
+            "STOP"
+        );
+
+    },
+    { passive: false }
 );
 
-stopButton.addEventListener(
-  "touchstart",
-  function(event) {
 
-    event.preventDefault();
+btnStop.addEventListener(
+    "touchend",
+    function(e) {
 
-    pressButton(
-      stopButton
-    );
+        e.preventDefault();
 
-    sendCommand("STOP");
+        btnStop.classList.remove(
+            "pressed"
+        );
 
-  }
+    },
+    { passive: false }
 );
 
-stopButton.addEventListener(
-  "touchend",
-  function(event) {
-
-    event.preventDefault();
-
-    releaseButton(
-      stopButton
-    );
-
-  }
-);
-
-/* =====================================================
-   KEYBOARD
-   ===================================================== */
-
-let keyState = {};
-
-document.addEventListener(
-  "keydown",
-  function(event) {
-
-    const key =
-    event.key.toLowerCase();
-
-    if (
-      key !== "w" &&
-      key !== "a" &&
-      key !== "s" &&
-      key !== "d"
-    ) {
-
-      return;
-    }
-
-    event.preventDefault();
-
-    if (keyState[key]) {
-
-      return;
-    }
-
-    keyState[key] = true;
-
-    const button =
-    document.querySelector(
-      '[data-key="' + key + '"]'
-    );
-
-    if (button) {
-
-      pressButton(button);
-
-    }
-
-    if (key === "w") {
-
-      sendCommand("W_ON");
-
-    }
-
-    else if (key === "a") {
-
-      sendCommand("A_ON");
-
-    }
-
-    else if (key === "s") {
-
-      sendCommand("S_ON");
-
-    }
-
-    else if (key === "d") {
-
-      sendCommand("D_ON");
-
-    }
-
-  }
-);
-
-/* =====================================================
-   KEY RELEASE
-   ===================================================== */
-
-document.addEventListener(
-  "keyup",
-  function(event) {
-
-    const key =
-    event.key.toLowerCase();
-
-    if (
-      key !== "w" &&
-      key !== "a" &&
-      key !== "s" &&
-      key !== "d"
-    ) {
-
-      return;
-    }
-
-    event.preventDefault();
-
-    keyState[key] = false;
-
-    const button =
-    document.querySelector(
-      '[data-key="' + key + '"]'
-    );
-
-    if (button) {
-
-      releaseButton(button);
-
-    }
-
-    sendCommand("STOP");
-
-  }
-);
 
 /* =====================================================
    SPEED SLIDER
    ===================================================== */
 
 const speedSlider =
-document.getElementById(
-  "speedSlider"
-);
-
-const speedDisplay =
-document.getElementById(
-  "speedValue"
-);
-
-speedSlider.addEventListener(
-  "input",
-  function() {
-
-    const speed =
-    this.value;
-
-    speedDisplay.textContent =
-    speed;
-
-    sendCommand(
-      "SPD:" + speed
+    document.getElementById(
+        "speedSlider"
     );
 
-  }
+const speedValue =
+    document.getElementById(
+        "speedValue"
+    );
+
+
+speedSlider.addEventListener(
+    "input",
+    function() {
+
+        const speed =
+            this.value;
+
+        speedValue.innerText =
+            speed;
+
+        sendCommand(
+            "SPD:" + speed
+        );
+
+    }
 );
+
+
+/* =====================================================
+   KEYBOARD
+   ===================================================== */
+
+let keyPressed = null;
+
+
+document.addEventListener(
+    "keydown",
+    function(e) {
+
+        if (e.repeat) {
+            return;
+        }
+
+
+        const key =
+            e.key.toLowerCase();
+
+
+        if (key === "w") {
+
+            pressEffect(btnW);
+
+            sendCommand("W_ON");
+
+            updateCarStatus(
+                "FORWARD"
+            );
+
+            keyPressed = "w";
+
+        }
+
+
+        else if (key === "a") {
+
+            pressEffect(btnA);
+
+            sendCommand("A_ON");
+
+            updateCarStatus(
+                "LEFT"
+            );
+
+            keyPressed = "a";
+
+        }
+
+
+        else if (key === "s") {
+
+            pressEffect(btnS);
+
+            sendCommand("S_ON");
+
+            updateCarStatus(
+                "BACKWARD"
+            );
+
+            keyPressed = "s";
+
+        }
+
+
+        else if (key === "d") {
+
+            pressEffect(btnD);
+
+            sendCommand("D_ON");
+
+            updateCarStatus(
+                "RIGHT"
+            );
+
+            keyPressed = "d";
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keyup",
+    function(e) {
+
+        const key =
+            e.key.toLowerCase();
+
+
+        if (
+            key === "w" ||
+            key === "a" ||
+            key === "s" ||
+            key === "d"
+        ) {
+
+            releaseEffect(btnW);
+            releaseEffect(btnA);
+            releaseEffect(btnS);
+            releaseEffect(btnD);
+
+            sendCommand("STOP");
+
+            updateCarStatus(
+                "STOP"
+            );
+
+            keyPressed = null;
+
+        }
+
+    }
+);
+
 
 /* =====================================================
    SAFETY STOP
    ===================================================== */
 
 window.addEventListener(
-  "blur",
-  function() {
+    "blur",
+    function() {
 
-    sendCommand("STOP");
+        releaseEffect(btnW);
+        releaseEffect(btnA);
+        releaseEffect(btnS);
+        releaseEffect(btnD);
 
-    buttons.forEach(
-      function(button) {
+        sendCommand("STOP");
 
-        releaseButton(button);
+        updateCarStatus(
+            "STOP"
+        );
 
-      }
-    );
-
-  }
+    }
 );
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+connectMQTT();
 
 </script>
 
 </body>
-
 </html>
-
