@@ -5,398 +5,442 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-<title>ESP32 Robot Car #4</title>
+<title>ESP32 CAR #4 V3</title>
+
+
+<!-- ================================================= -->
+<!-- MQTT.js -->
+<!-- ================================================= -->
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
 
 <style>
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
+
 
 body {
 
-    margin: 0;
+  margin: 0;
 
-    background: #111;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
 
-    color: white;
+  background:
+    #111;
 
-    font-family: Arial, sans-serif;
+  color: white;
 
-    text-align: center;
+  text-align: center;
 
-    touch-action: manipulation;
+  user-select: none;
+}
+
+
+.container {
+
+  width: 100%;
+
+  max-width: 700px;
+
+  margin: auto;
+
+  padding: 20px;
 }
 
 
 h1 {
 
-    margin-top: 20px;
-
-    margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 
-/* =================================
-   STATUS
-================================= */
+.subtitle {
 
-.status-box {
+  color: #aaa;
 
-    width: 90%;
-
-    max-width: 500px;
-
-    margin: 15px auto;
-
-    padding: 15px;
-
-    background: #222;
-
-    border-radius: 12px;
-
-    font-size: 18px;
+  margin-bottom: 20px;
 }
 
 
-#mqttStatus {
+/* ================================================= */
+/* STATUS */
+/* ================================================= */
 
-    font-weight: bold;
+.status {
+
+  background: #222;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  margin-bottom: 15px;
 }
 
 
-#carStatus {
+.statusRow {
 
-    margin-top: 8px;
+  display: flex;
 
-    font-size: 22px;
+  justify-content:
+    space-between;
 
-    font-weight: bold;
+  margin: 8px 0;
+
+  font-size: 16px;
 }
 
 
-/* =================================
-   MODE
-================================= */
+.connected {
 
-.mode-box {
+  color: #00ff66;
 
-    width: 90%;
-
-    max-width: 500px;
-
-    margin: 20px auto;
-
-    padding: 20px;
-
-    background: #222;
-
-    border-radius: 15px;
+  font-weight: bold;
 }
 
 
-.mode-title {
+.disconnected {
 
-    font-size: 20px;
+  color: #ff4444;
 
-    font-weight: bold;
-
-    margin-bottom: 15px;
+  font-weight: bold;
 }
 
 
-.mode-label {
+/* ================================================= */
+/* MODE */
+/* ================================================= */
 
-    display: flex;
+.modeBox {
 
-    justify-content: space-between;
+  background: #222;
 
-    align-items: center;
+  border-radius: 15px;
 
-    margin-bottom: 15px;
+  padding: 18px;
 
-    font-size: 17px;
+  margin-bottom: 15px;
 }
 
 
-.mode-name {
+.modeText {
 
-    font-weight: bold;
+  font-size: 20px;
 
-    font-size: 20px;
+  font-weight: bold;
+
+  margin-bottom: 15px;
 }
 
 
-/* =================================
-   TOGGLE
-================================= */
+/* ================================================= */
+/* TOGGLE */
+/* ================================================= */
 
 .switch {
 
-    position: relative;
+  position: relative;
 
-    display: inline-block;
+  display: inline-block;
 
-    width: 80px;
+  width: 70px;
 
-    height: 40px;
+  height: 36px;
 }
 
 
 .switch input {
 
-    opacity: 0;
-
-    width: 0;
-
-    height: 0;
+  display: none;
 }
 
 
 .slider {
 
-    position: absolute;
+  position: absolute;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    inset: 0;
+  inset: 0;
 
-    background: #555;
+  background: #555;
 
-    border-radius: 40px;
+  border-radius: 36px;
 
-    transition: 0.25s;
+  transition: 0.25s;
 }
 
 
 .slider:before {
 
-    content: "";
+  content: "";
 
-    position: absolute;
+  position: absolute;
 
-    height: 32px;
+  height: 28px;
 
-    width: 32px;
+  width: 28px;
 
-    left: 4px;
+  left: 4px;
 
-    top: 4px;
+  top: 4px;
 
-    background: white;
+  background: white;
 
-    border-radius: 50%;
+  border-radius: 50%;
 
-    transition: 0.25s;
+  transition: 0.25s;
 }
 
 
 input:checked + .slider {
 
-    background: #00aa66;
+  background: #00aaff;
 }
 
 
 input:checked + .slider:before {
 
-    transform: translateX(40px);
+  transform:
+    translateX(34px);
 }
 
 
-/* =================================
-   SPEED
-================================= */
+/* ================================================= */
+/* SPEED CONTROL */
+/* ================================================= */
 
-.speed-box {
+.speedBox {
 
-    width: 90%;
+  background: #222;
 
-    max-width: 500px;
+  border-radius: 15px;
 
-    margin: 20px auto;
+  padding: 20px;
 
-    padding: 15px;
-
-    background: #222;
-
-    border-radius: 12px;
+  margin-bottom: 15px;
 }
 
 
-#speedValue {
+.speedTitle {
 
-    font-size: 22px;
+  font-size: 18px;
 
-    font-weight: bold;
+  margin-bottom: 10px;
+}
+
+
+.speedValue {
+
+  font-size: 28px;
+
+  font-weight: bold;
+
+  margin: 8px;
 }
 
 
 input[type="range"] {
 
-    width: 90%;
+  width: 100%;
+
+  height: 8px;
+
+  cursor: pointer;
 }
 
 
-/* =================================
-   CONTROLS
-================================= */
+/* ================================================= */
+/* MOTOR SPEED GRID */
+/* ================================================= */
+
+.motorGrid {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 12px;
+
+  margin-top: 15px;
+}
+
+
+.motorBox {
+
+  background: #181818;
+
+  border-radius: 12px;
+
+  padding: 15px;
+}
+
+
+.motorTitle {
+
+  font-size: 16px;
+
+  margin-bottom: 8px;
+}
+
+
+.motorValue {
+
+  font-size: 24px;
+
+  font-weight: bold;
+
+  margin-bottom: 8px;
+}
+
+
+/* ================================================= */
+/* CONTROL */
+/* ================================================= */
 
 .controls {
 
-    width: 300px;
-
-    margin: 25px auto;
+  margin-top: 20px;
 }
 
 
-.row {
+.controlGrid {
 
-    display: flex;
+  display: grid;
 
-    justify-content: center;
+  grid-template-columns:
+    repeat(3, 1fr);
 
-    gap: 15px;
+  gap: 12px;
 
-    margin: 15px 0;
+  max-width: 400px;
+
+  margin: auto;
 }
 
 
-/* =================================
-   BUTTON
-================================= */
+.controlButton {
 
-.control-btn {
+  height: 90px;
 
-    width: 85px;
+  border: none;
 
-    height: 85px;
+  border-radius: 18px;
 
-    border: none;
+  background: #333;
 
-    border-radius: 18px;
+  color: white;
 
-    background: #333;
+  font-size: 32px;
 
-    color: white;
+  font-weight: bold;
 
-    font-size: 32px;
+  cursor: pointer;
 
-    font-weight: bold;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 8px 0 #111,
-        0 10px 15px rgba(0,0,0,0.5);
-
-    transition:
-        transform 0.06s ease,
-        background 0.06s ease,
-        box-shadow 0.06s ease;
-
-    user-select: none;
-
-    touch-action: none;
+  transition:
+    transform 0.08s,
+    background 0.08s;
 }
 
 
-.control-btn.pressed {
+.controlButton:active {
 
-    transform:
-        translateY(7px)
-        scale(0.92);
+  transform:
+    scale(0.92);
 
-    background: #00aaff;
-
-    box-shadow:
-        0 2px 0 #006688,
-        0 3px 8px rgba(0,170,255,0.8);
+  background:
+    #00aaff;
 }
 
 
-.control-btn:active {
+.controlButton.disabled {
 
-    transform:
-        translateY(7px)
-        scale(0.92);
+  opacity: 0.25;
 
-    background: #00aaff;
-
-    box-shadow:
-        0 2px 0 #006688,
-        0 3px 8px rgba(0,170,255,0.8);
+  pointer-events: none;
 }
 
 
-/* =================================
-   STOP
-================================= */
+.stopButton {
 
-.stop-btn {
+  background: #a00000;
 
-    width: 100px;
-
-    height: 55px;
-
-    margin-top: 10px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background: #cc2222;
-
-    color: white;
-
-    font-size: 20px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    box-shadow: 0 6px 0 #661111;
-
-    transition: all 0.06s ease;
+  font-size: 24px;
 }
 
 
-.stop-btn.pressed {
+.stopButton:active {
 
-    transform:
-        translateY(5px)
-        scale(0.94);
-
-    background: #ff4444;
-
-    box-shadow:
-        0 1px 0 #661111;
+  background:
+    #ff2222;
 }
 
 
-/* =================================
-   DISABLE MANUAL
-================================= */
-
-.manual-disabled {
-
-    opacity: 0.35;
-
-    pointer-events: none;
-}
-
+/* ================================================= */
+/* HELP */
+/* ================================================= */
 
 .info {
 
-    margin-top: 20px;
+  margin-top: 20px;
 
-    color: #aaa;
+  padding: 15px;
 
-    font-size: 14px;
+  background: #222;
+
+  border-radius: 15px;
+
+  color: #aaa;
+
+  line-height: 1.6;
+}
+
+
+kbd {
+
+  background: #333;
+
+  padding:
+    3px 8px;
+
+  border-radius: 5px;
+
+  color: white;
+}
+
+
+/* ================================================= */
+/* RESPONSIVE */
+/* ================================================= */
+
+@media (
+  max-width: 500px
+) {
+
+  .controlButton {
+
+    height: 75px;
+
+    font-size: 26px;
+  }
+
+  .motorGrid {
+
+    grid-template-columns:
+      1fr;
+  }
 }
 
 </style>
@@ -407,192 +451,317 @@ input[type="range"] {
 <body>
 
 
-<h1>ESP32 ROBOT CAR #4</h1>
+<div class="container">
 
 
-<!-- =================================
-     STATUS
-================================= -->
+<!-- ================================================= -->
+<!-- TITLE -->
+<!-- ================================================= -->
 
-<div class="status-box">
+<h1>
+  ESP32 CAR #4
+</h1>
 
-    <div>
-
-        MQTT:
-
-        <span id="mqttStatus">
-            DISCONNECTED
-        </span>
-
-    </div>
+<div class="subtitle">
+  Following Line Patrol Car — V3
+</div>
 
 
-    <div id="carStatus">
+<!-- ================================================= -->
+<!-- STATUS -->
+<!-- ================================================= -->
 
-        CAR: STOP
+<div class="status">
 
-    </div>
+  <div class="statusRow">
+
+    <span>
+      MQTT
+    </span>
+
+    <span
+      id="mqttStatus"
+      class="disconnected"
+    >
+      DISCONNECTED
+    </span>
+
+  </div>
+
+
+  <div class="statusRow">
+
+    <span>
+      CAR
+    </span>
+
+    <span id="carStatus">
+      STOP
+    </span>
+
+  </div>
+
+
+  <div class="statusRow">
+
+    <span>
+      MODE
+    </span>
+
+    <span id="modeStatus">
+      MANUAL
+    </span>
+
+  </div>
 
 </div>
 
 
-<!-- =================================
-     MODE TOGGLE
-================================= -->
+<!-- ================================================= -->
+<!-- MODE -->
+<!-- ================================================= -->
 
-<div class="mode-box">
+<div class="modeBox">
 
-    <div class="mode-title">
-
-        DRIVING MODE
-
-    </div>
-
-
-    <div class="mode-label">
-
-        <span
-            id="modeName"
-            class="mode-name">
-
-            MANUAL
-
-        </span>
+  <div
+    id="modeText"
+    class="modeText"
+  >
+    MANUAL
+  </div>
 
 
-        <label class="switch">
+  <label class="switch">
 
-            <input
-                type="checkbox"
-                id="modeToggle">
+    <input
+      type="checkbox"
+      id="modeToggle"
+    >
 
-            <span class="slider"></span>
+    <span class="slider"></span>
 
-        </label>
-
-    </div>
-
-
-    <div id="modeDescription">
-
-        W / A / S / D Manual Control
-
-    </div>
-
-</div>
+  </label>
 
 
-<!-- =================================
-     SPEED
-================================= -->
+  <div style="margin-top:10px;color:#aaa">
 
-<div class="speed-box">
-
-    <div>
-
-        SPEED:
-
-        <span id="speedValue">
-            600
-        </span>
-
-    </div>
-
+    OFF = MANUAL
 
     <br>
 
+    ON = LINE FOLLOW
 
-    <input
-        type="range"
-        id="speedSlider"
-        min="0"
-        max="1023"
-        value="600">
+  </div>
 
 </div>
 
 
-<!-- =================================
-     MANUAL CONTROL
-================================= -->
+<!-- ================================================= -->
+<!-- MASTER SPEED -->
+<!-- ================================================= -->
 
-<div id="manualControls"
-     class="controls">
+<div class="speedBox">
+
+  <div class="speedTitle">
+    MASTER SPEED
+  </div>
+
+
+  <div
+    id="masterSpeedValue"
+    class="speedValue"
+  >
+    600
+  </div>
+
+
+  <input
+    type="range"
+    id="masterSpeed"
+    min="0"
+    max="1023"
+    value="600"
+  >
+
+
+  <div class="motorGrid">
+
+
+    <!-- LEFT -->
+
+    <div class="motorBox">
+
+      <div class="motorTitle">
+        LEFT MOTOR
+      </div>
+
+      <div
+        id="leftSpeedValue"
+        class="motorValue"
+      >
+        600
+      </div>
+
+      <input
+        type="range"
+        id="leftSpeed"
+        min="0"
+        max="1023"
+        value="600"
+      >
+
+    </div>
+
+
+    <!-- RIGHT -->
+
+    <div class="motorBox">
+
+      <div class="motorTitle">
+        RIGHT MOTOR
+      </div>
+
+      <div
+        id="rightSpeedValue"
+        class="motorValue"
+      >
+        600
+      </div>
+
+      <input
+        type="range"
+        id="rightSpeed"
+        min="0"
+        max="1023"
+        value="600"
+      >
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- CONTROL -->
+<!-- ================================================= -->
+
+<div class="controls">
+
+
+  <div class="controlGrid">
+
+
+    <!-- EMPTY -->
+
+    <div></div>
 
 
     <!-- W -->
 
-    <div class="row">
-
-        <button
-            class="control-btn"
-            id="btnW">
-
-            W
-
-        </button>
-
-    </div>
+    <button
+      class="controlButton manualControl"
+      id="btnW"
+    >
+      W
+    </button>
 
 
-    <!-- A S D -->
+    <!-- EMPTY -->
 
-    <div class="row">
-
-        <button
-            class="control-btn"
-            id="btnA">
-
-            A
-
-        </button>
+    <div></div>
 
 
-        <button
-            class="control-btn"
-            id="btnS">
+    <!-- A -->
 
-            S
-
-        </button>
-
-
-        <button
-            class="control-btn"
-            id="btnD">
-
-            D
-
-        </button>
-
-    </div>
+    <button
+      class="controlButton manualControl"
+      id="btnA"
+    >
+      A
+    </button>
 
 
     <!-- STOP -->
 
     <button
-        class="stop-btn"
-        id="btnStop">
-
-        STOP
-
+      class="controlButton stopButton"
+      id="btnSTOP"
+    >
+      STOP
     </button>
+
+
+    <!-- D -->
+
+    <button
+      class="controlButton manualControl"
+      id="btnD"
+    >
+      D
+    </button>
+
+
+    <!-- EMPTY -->
+
+    <div></div>
+
+
+    <!-- S -->
+
+    <button
+      class="controlButton manualControl"
+      id="btnS"
+    >
+      S
+    </button>
+
+
+    <!-- EMPTY -->
+
+    <div></div>
+
+  </div>
 
 </div>
 
 
+<!-- ================================================= -->
+<!-- INFO -->
+<!-- ================================================= -->
+
 <div class="info">
 
-    MANUAL:
-    W = Forward |
-    S = Backward |
-    A = Left |
-    D = Right
+  Manual control:
 
-    <br><br>
+  <br>
 
-    LINE FOLLOW:
-    ESP32 controls the motors using the IR sensors.
+  <kbd>W</kbd>
+  Forward
+
+  <br>
+
+  <kbd>S</kbd>
+  Backward
+
+  <br>
+
+  <kbd>A</kbd>
+  Tank Turn Left
+
+  <br>
+
+  <kbd>D</kbd>
+  Tank Turn Right
+
+  <br><br>
+
+  Both motor speeds can be calibrated
+  independently.
+
+</div>
+
 
 </div>
 
@@ -600,696 +769,868 @@ input[type="range"] {
 <script>
 
 
-/* =================================
-   MQTT
-================================= */
+// =====================================================
+// MQTT CONFIG
+// =====================================================
 
 const MQTT_BROKER =
-    "wss://broker.hivemq.com:8884/mqtt";
+  "wss://broker.hivemq.com:8884/mqtt";
 
 
 const MQTT_TOPIC =
-    "esp/car4";
+  "esp/car4";
 
+
+// =====================================================
+// MQTT CLIENT
+// =====================================================
 
 let client = null;
 
 
-/* =================================
-   ELEMENTS
-================================= */
+// =====================================================
+// STATE
+// =====================================================
+
+let connected = false;
+
+let lineMode = false;
+
+let currentCommand = "STOP";
+
+
+// =====================================================
+// ELEMENTS
+// =====================================================
 
 const mqttStatus =
-    document.getElementById(
-        "mqttStatus"
-    );
+  document.getElementById(
+    "mqttStatus"
+  );
 
 
 const carStatus =
-    document.getElementById(
-        "carStatus"
-    );
+  document.getElementById(
+    "carStatus"
+  );
+
+
+const modeStatus =
+  document.getElementById(
+    "modeStatus"
+  );
+
+
+const modeText =
+  document.getElementById(
+    "modeText"
+  );
 
 
 const modeToggle =
-    document.getElementById(
-        "modeToggle"
-    );
+  document.getElementById(
+    "modeToggle"
+  );
 
 
-const modeName =
-    document.getElementById(
-        "modeName"
-    );
+const masterSpeed =
+  document.getElementById(
+    "masterSpeed"
+  );
 
 
-const modeDescription =
-    document.getElementById(
-        "modeDescription"
-    );
+const masterSpeedValue =
+  document.getElementById(
+    "masterSpeedValue"
+  );
 
 
-const manualControls =
-    document.getElementById(
-        "manualControls"
-    );
+const leftSpeed =
+  document.getElementById(
+    "leftSpeed"
+  );
 
 
-/* =================================
-   STATUS
-================================= */
-
-function updateCarStatus(text) {
-
-    carStatus.innerText =
-        "CAR: " + text;
-
-}
+const rightSpeed =
+  document.getElementById(
+    "rightSpeed"
+  );
 
 
-/* =================================
-   MQTT CONNECT
-================================= */
+const leftSpeedValue =
+  document.getElementById(
+    "leftSpeedValue"
+  );
+
+
+const rightSpeedValue =
+  document.getElementById(
+    "rightSpeedValue"
+  );
+
+
+// =====================================================
+// MQTT CONNECT
+// =====================================================
 
 function connectMQTT() {
 
-    client = mqtt.connect(
-        MQTT_BROKER,
-        {
+  mqttStatus.innerText =
+    "CONNECTING...";
 
-            clientId:
-                "WEB_CAR4_" +
-                Math.random()
-                    .toString(16)
-                    .substring(2),
+  mqttStatus.className =
+    "disconnected";
 
-            clean: true,
 
-            connectTimeout: 5000,
+  client =
+    mqtt.connect(
+      MQTT_BROKER,
+      {
 
-            reconnectPeriod: 3000
+        clientId:
+          "WEB_CAR4_" +
+          Math.random()
+            .toString(16)
+            .substring(2),
 
-        }
+        clean: true,
+
+        reconnectPeriod: 2000
+
+      }
     );
 
 
-    client.on(
-        "connect",
-        function() {
+  // ===================================================
+  // CONNECTED
+  // ===================================================
 
-            mqttStatus.innerText =
-                "CONNECTED";
-
-            mqttStatus.style.color =
-                "#00ff66";
-
-        }
-    );
-
-
-    client.on(
-        "close",
-        function() {
-
-            mqttStatus.innerText =
-                "DISCONNECTED";
-
-            mqttStatus.style.color =
-                "#ff4444";
-
-        }
-    );
-
-}
-
-
-/* =================================
-   SEND COMMAND
-================================= */
-
-function sendCommand(command) {
-
-    console.log(
-        "SEND:",
-        command
-    );
-
-
-    if (
-        client &&
-        client.connected
-    ) {
-
-        client.publish(
-            MQTT_TOPIC,
-            command
-        );
-
-    }
-
-}
-
-
-/* =================================
-   MODE TOGGLE
-================================= */
-
-modeToggle.addEventListener(
-    "change",
+  client.on(
+    "connect",
     function() {
 
-
-        /* ============================
-           LINE FOLLOW
-        ============================ */
-
-        if (this.checked) {
-
-            // STOP FIRST
-
-            sendCommand(
-                "STOP"
-            );
-
-            setTimeout(
-                function() {
-
-                    sendCommand(
-                        "MODE:LINE"
-                    );
-
-                },
-                100
-            );
+      connected = true;
 
 
-            modeName.innerText =
-                "LINE FOLLOW";
+      mqttStatus.innerText =
+        "CONNECTED";
+
+      mqttStatus.className =
+        "connected";
 
 
-            modeName.style.color =
-                "#00ff66";
+      console.log(
+        "MQTT CONNECTED"
+      );
+
+    }
+  );
 
 
-            modeDescription.innerText =
-                "ESP32 follows the IR sensors";
+  // ===================================================
+  // DISCONNECT
+  // ===================================================
+
+  client.on(
+    "close",
+    function() {
+
+      connected = false;
 
 
-            manualControls.classList.add(
-                "manual-disabled"
-            );
+      mqttStatus.innerText =
+        "DISCONNECTED";
+
+      mqttStatus.className =
+        "disconnected";
+
+    }
+  );
 
 
-            updateCarStatus(
-                "LINE FOLLOW"
-            );
+  // ===================================================
+  // ERROR
+  // ===================================================
+
+  client.on(
+    "error",
+    function(error) {
+
+      console.log(
+        "MQTT ERROR",
+        error
+      );
+
+    }
+  );
+
+}
+
+
+// =====================================================
+// SEND MQTT
+// =====================================================
+
+function sendCommand(
+  command
+) {
+
+  if (
+    !connected
+  ) {
+
+    return;
+  }
+
+
+  client.publish(
+    MQTT_TOPIC,
+    command
+  );
+
+
+  console.log(
+    "SEND:",
+    command
+  );
+}
+
+
+// =====================================================
+// CAR STATUS
+// =====================================================
+
+function setCarStatus(
+  status
+) {
+
+  currentCommand =
+    status;
+
+
+  carStatus.innerText =
+    status;
+}
+
+
+// =====================================================
+// MODE UPDATE
+// =====================================================
+
+function updateModeUI() {
+
+  if (
+    lineMode
+  ) {
+
+    modeText.innerText =
+      "LINE FOLLOW";
+
+    modeStatus.innerText =
+      "LINE FOLLOW";
+
+  }
+
+  else {
+
+    modeText.innerText =
+      "MANUAL";
+
+    modeStatus.innerText =
+      "MANUAL";
+  }
+
+
+  // Disable manual controls
+  // in line follow mode
+
+  document
+    .querySelectorAll(
+      ".manualControl"
+    )
+    .forEach(
+      function(button) {
+
+        if (
+          lineMode
+        ) {
+
+          button.classList.add(
+            "disabled"
+          );
 
         }
-
-
-        /* ============================
-           MANUAL
-        ============================ */
 
         else {
 
-            sendCommand(
-                "STOP"
-            );
-
-            setTimeout(
-                function() {
-
-                    sendCommand(
-                        "MODE:MANUAL"
-                    );
-
-                },
-                100
-            );
-
-
-            modeName.innerText =
-                "MANUAL";
-
-
-            modeName.style.color =
-                "white";
-
-
-            modeDescription.innerText =
-                "W / A / S / D Manual Control";
-
-
-            manualControls.classList.remove(
-                "manual-disabled"
-            );
-
-
-            updateCarStatus(
-                "STOP"
-            );
-
+          button.classList.remove(
+            "disabled"
+          );
         }
 
+      }
+    );
+}
+
+
+// =====================================================
+// MODE TOGGLE
+// =====================================================
+
+modeToggle.addEventListener(
+  "change",
+  function() {
+
+
+    // ================================================
+    // LINE FOLLOW
+    // ================================================
+
+    if (
+      modeToggle.checked
+    ) {
+
+      lineMode = true;
+
+
+      sendCommand(
+        "STOP"
+      );
+
+
+      setCarStatus(
+        "STOP"
+      );
+
+
+      sendCommand(
+        "MODE:LINE"
+      );
+
+
+      updateModeUI();
+
     }
+
+
+    // ================================================
+    // MANUAL
+    // ================================================
+
+    else {
+
+      lineMode = false;
+
+
+      sendCommand(
+        "STOP"
+      );
+
+
+      setCarStatus(
+        "STOP"
+      );
+
+
+      sendCommand(
+        "MODE:MANUAL"
+      );
+
+
+      updateModeUI();
+
+    }
+
+  }
 );
 
 
-/* =================================
-   BUTTON EFFECT
-================================= */
+// =====================================================
+// MASTER SPEED
+// =====================================================
 
-function pressEffect(button) {
+masterSpeed.addEventListener(
+  "input",
+  function() {
 
-    button.classList.add(
-        "pressed"
+    const value =
+      Number(
+        masterSpeed.value
+      );
+
+
+    masterSpeedValue.innerText =
+      value;
+
+
+    // Set both motors
+
+    leftSpeed.value =
+      value;
+
+    rightSpeed.value =
+      value;
+
+
+    leftSpeedValue.innerText =
+      value;
+
+    rightSpeedValue.innerText =
+      value;
+
+
+    sendCommand(
+      "SPD:" + value
     );
+
+  }
+);
+
+
+// =====================================================
+// LEFT SPEED
+// =====================================================
+
+leftSpeed.addEventListener(
+  "input",
+  function() {
+
+    const value =
+      Number(
+        leftSpeed.value
+      );
+
+
+    leftSpeedValue.innerText =
+      value;
+
+
+    sendCommand(
+      "LSPD:" + value
+    );
+
+  }
+);
+
+
+// =====================================================
+// RIGHT SPEED
+// =====================================================
+
+rightSpeed.addEventListener(
+  "input",
+  function() {
+
+    const value =
+      Number(
+        rightSpeed.value
+      );
+
+
+    rightSpeedValue.innerText =
+      value;
+
+
+    sendCommand(
+      "RSPD:" + value
+    );
+
+  }
+);
+
+
+// =====================================================
+// BUTTON PRESS
+// =====================================================
+
+function pressCommand(
+  command
+) {
+
+  if (
+    lineMode
+  ) {
+
+    return;
+  }
+
+
+  sendCommand(
+    command
+  );
+
+
+  if (
+    command ===
+    "W_ON"
+  ) {
+
+    setCarStatus(
+      "FORWARD"
+    );
+
+  }
+
+  else if (
+    command ===
+    "S_ON"
+  ) {
+
+    setCarStatus(
+      "BACKWARD"
+    );
+
+  }
+
+  else if (
+    command ===
+    "A_ON"
+  ) {
+
+    setCarStatus(
+      "LEFT"
+    );
+
+  }
+
+  else if (
+    command ===
+    "D_ON"
+  ) {
+
+    setCarStatus(
+      "RIGHT"
+    );
+  }
+}
+
+
+// =====================================================
+// RELEASE
+// =====================================================
+
+function releaseCommand() {
+
+  if (
+    lineMode
+  ) {
+
+    return;
+  }
+
+
+  sendCommand(
+    "STOP"
+  );
+
+
+  setCarStatus(
+    "STOP"
+  );
+}
+
+
+// =====================================================
+// BUTTON SETUP
+// =====================================================
+
+function setupButton(
+  id,
+  command
+) {
+
+  const button =
+    document.getElementById(
+      id
+    );
+
+
+  // Mouse
+
+  button.addEventListener(
+    "mousedown",
+    function(event) {
+
+      event.preventDefault();
+
+      pressCommand(
+        command
+      );
+
+    }
+  );
+
+
+  button.addEventListener(
+    "mouseup",
+    function(event) {
+
+      event.preventDefault();
+
+      releaseCommand();
+
+    }
+  );
+
+
+  button.addEventListener(
+    "mouseleave",
+    function() {
+
+      releaseCommand();
+
+    }
+  );
+
+
+  // Touch
+
+  button.addEventListener(
+    "touchstart",
+    function(event) {
+
+      event.preventDefault();
+
+      pressCommand(
+        command
+      );
+
+    },
+    {
+      passive: false
+    }
+  );
+
+
+  button.addEventListener(
+    "touchend",
+    function(event) {
+
+      event.preventDefault();
+
+      releaseCommand();
+
+    },
+    {
+      passive: false
+    }
+  );
 
 }
 
 
-function releaseEffect(button) {
+// =====================================================
+// BUTTONS
+// =====================================================
 
-    button.classList.remove(
-        "pressed"
-    );
-
-}
-
-
-/* =================================
-   W
-================================= */
-
-const btnW =
-    document.getElementById(
-        "btnW"
-    );
-
-
-btnW.addEventListener(
-    "mousedown",
-    function(e) {
-
-        e.preventDefault();
-
-        pressEffect(btnW);
-
-        sendCommand("W_ON");
-
-        updateCarStatus(
-            "FORWARD"
-        );
-
-    }
+setupButton(
+  "btnW",
+  "W_ON"
 );
 
 
-btnW.addEventListener(
-    "mouseup",
+setupButton(
+  "btnA",
+  "A_ON"
+);
+
+
+setupButton(
+  "btnS",
+  "S_ON"
+);
+
+
+setupButton(
+  "btnD",
+  "D_ON"
+);
+
+
+// =====================================================
+// STOP BUTTON
+// =====================================================
+
+document
+  .getElementById(
+    "btnSTOP"
+  )
+  .addEventListener(
+    "click",
     function() {
 
-        releaseEffect(btnW);
-
-        sendCommand("STOP");
-
-        updateCarStatus(
-            "STOP"
-        );
-
-    }
-);
+      sendCommand(
+        "STOP"
+      );
 
 
-/* =================================
-   A
-================================= */
-
-const btnA =
-    document.getElementById(
-        "btnA"
-    );
-
-
-btnA.addEventListener(
-    "mousedown",
-    function(e) {
-
-        e.preventDefault();
-
-        pressEffect(btnA);
-
-        sendCommand("A_ON");
-
-        updateCarStatus(
-            "LEFT"
-        );
+      setCarStatus(
+        "STOP"
+      );
 
     }
-);
+  );
 
 
-btnA.addEventListener(
-    "mouseup",
-    function() {
+// =====================================================
+// KEYBOARD
+// =====================================================
 
-        releaseEffect(btnA);
+let keyboardPressed =
+  false;
 
-        sendCommand("STOP");
-
-        updateCarStatus(
-            "STOP"
-        );
-
-    }
-);
-
-
-/* =================================
-   S
-================================= */
-
-const btnS =
-    document.getElementById(
-        "btnS"
-    );
-
-
-btnS.addEventListener(
-    "mousedown",
-    function(e) {
-
-        e.preventDefault();
-
-        pressEffect(btnS);
-
-        sendCommand("S_ON");
-
-        updateCarStatus(
-            "BACKWARD"
-        );
-
-    }
-);
-
-
-btnS.addEventListener(
-    "mouseup",
-    function() {
-
-        releaseEffect(btnS);
-
-        sendCommand("STOP");
-
-        updateCarStatus(
-            "STOP"
-        );
-
-    }
-);
-
-
-/* =================================
-   D
-================================= */
-
-const btnD =
-    document.getElementById(
-        "btnD"
-    );
-
-
-btnD.addEventListener(
-    "mousedown",
-    function(e) {
-
-        e.preventDefault();
-
-        pressEffect(btnD);
-
-        sendCommand("D_ON");
-
-        updateCarStatus(
-            "RIGHT"
-        );
-
-    }
-);
-
-
-btnD.addEventListener(
-    "mouseup",
-    function() {
-
-        releaseEffect(btnD);
-
-        sendCommand("STOP");
-
-        updateCarStatus(
-            "STOP"
-        );
-
-    }
-);
-
-
-/* =================================
-   STOP
-================================= */
-
-const btnStop =
-    document.getElementById(
-        "btnStop"
-    );
-
-
-btnStop.addEventListener(
-    "mousedown",
-    function(e) {
-
-        e.preventDefault();
-
-        btnStop.classList.add(
-            "pressed"
-        );
-
-        sendCommand(
-            "STOP"
-        );
-
-        updateCarStatus(
-            "STOP"
-        );
-
-    }
-);
-
-
-btnStop.addEventListener(
-    "mouseup",
-    function() {
-
-        btnStop.classList.remove(
-            "pressed"
-        );
-
-    }
-);
-
-
-/* =================================
-   SPEED
-================================= */
-
-const speedSlider =
-    document.getElementById(
-        "speedSlider"
-    );
-
-
-const speedValue =
-    document.getElementById(
-        "speedValue"
-    );
-
-
-speedSlider.addEventListener(
-    "input",
-    function() {
-
-        const speed =
-            this.value;
-
-
-        speedValue.innerText =
-            speed;
-
-
-        sendCommand(
-            "SPD:" + speed
-        );
-
-    }
-);
-
-
-/* =================================
-   KEYBOARD
-================================= */
 
 document.addEventListener(
-    "keydown",
-    function(e) {
+  "keydown",
+  function(event) {
 
-        if (
-            e.repeat ||
-            modeToggle.checked
-        ) {
-            return;
-        }
+    if (
+      lineMode
+    ) {
 
-
-        const key =
-            e.key.toLowerCase();
+      return;
+    }
 
 
-        if (key === "w") {
+    if (
+      keyboardPressed
+    ) {
 
-            pressEffect(btnW);
-
-            sendCommand(
-                "W_ON"
-            );
-
-            updateCarStatus(
-                "FORWARD"
-            );
-
-        }
+      return;
+    }
 
 
-        else if (key === "a") {
-
-            pressEffect(btnA);
-
-            sendCommand(
-                "A_ON"
-            );
-
-            updateCarStatus(
-                "LEFT"
-            );
-
-        }
+    const key =
+      event.key.toLowerCase();
 
 
-        else if (key === "s") {
-
-            pressEffect(btnS);
-
-            sendCommand(
-                "S_ON"
-            );
-
-            updateCarStatus(
-                "BACKWARD"
-            );
-
-        }
+    let command =
+      null;
 
 
-        else if (key === "d") {
+    if (
+      key === "w"
+    ) {
 
-            pressEffect(btnD);
-
-            sendCommand(
-                "D_ON"
-            );
-
-            updateCarStatus(
-                "RIGHT"
-            );
-
-        }
+      command =
+        "W_ON";
 
     }
+
+    else if (
+      key === "a"
+    ) {
+
+      command =
+        "A_ON";
+
+    }
+
+    else if (
+      key === "s"
+    ) {
+
+      command =
+        "S_ON";
+
+    }
+
+    else if (
+      key === "d"
+    ) {
+
+      command =
+        "D_ON";
+    }
+
+
+    if (
+      command
+    ) {
+
+      event.preventDefault();
+
+
+      keyboardPressed =
+        true;
+
+
+      pressCommand(
+        command
+      );
+    }
+
+  }
 );
 
 
-/* =================================
-   KEY RELEASE
-================================= */
+// =====================================================
+// KEYBOARD RELEASE
+// =====================================================
 
 document.addEventListener(
-    "keyup",
-    function(e) {
+  "keyup",
+  function(event) {
 
-        const key =
-            e.key.toLowerCase();
-
-
-        if (
-            key === "w" ||
-            key === "a" ||
-            key === "s" ||
-            key === "d"
-        ) {
-
-            releaseEffect(btnW);
-            releaseEffect(btnA);
-            releaseEffect(btnS);
-            releaseEffect(btnD);
+    const key =
+      event.key.toLowerCase();
 
 
-            if (
-                !modeToggle.checked
-            ) {
+    if (
+      key === "w" ||
+      key === "a" ||
+      key === "s" ||
+      key === "d"
+    ) {
 
-                sendCommand(
-                    "STOP"
-                );
+      keyboardPressed =
+        false;
 
-                updateCarStatus(
-                    "STOP"
-                );
 
-            }
-
-        }
+      releaseCommand();
 
     }
+
+  }
 );
 
 
-/* =================================
-   SAFETY STOP
-================================= */
+// =====================================================
+// SAFETY STOP
+// =====================================================
 
 window.addEventListener(
-    "blur",
-    function() {
+  "blur",
+  function() {
 
-        releaseEffect(btnW);
-        releaseEffect(btnA);
-        releaseEffect(btnS);
-        releaseEffect(btnD);
+    if (
+      !lineMode
+    ) {
 
-        sendCommand(
-            "STOP"
-        );
+      sendCommand(
+        "STOP"
+      );
 
-        updateCarStatus(
-            "STOP"
-        );
 
+      setCarStatus(
+        "STOP"
+      );
     }
+
+  }
 );
 
 
-/* =================================
-   START
-================================= */
+// =====================================================
+// INITIAL UI
+// =====================================================
+
+updateModeUI();
+
+
+// =====================================================
+// CONNECT
+// =====================================================
 
 connectMQTT();
 
