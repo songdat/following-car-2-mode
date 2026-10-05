@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -15,45 +16,91 @@
 
 <style>
 
+/* =====================================================
+   PAGE
+   ===================================================== */
+
 body {
+
   margin: 0;
   padding: 0;
+
   font-family: Arial, sans-serif;
+
   background: #111;
+
   color: white;
+
   text-align: center;
 }
 
 .container {
+
   max-width: 500px;
+
   margin: auto;
+
   padding: 20px;
 }
 
 h1 {
+
   margin-bottom: 10px;
 }
 
+/* =====================================================
+   STATUS
+   ===================================================== */
+
 .status {
+
   margin: 15px 0;
+
   padding: 12px;
+
   background: #222;
+
   border-radius: 10px;
+
   font-size: 18px;
 }
 
+.connected {
+
+  color: #00ff66;
+}
+
+.disconnected {
+
+  color: #ff4444;
+}
+
+/* =====================================================
+   SPEED
+   ===================================================== */
+
 .speedBox {
+
   margin: 20px 0;
 }
 
 input[type="range"] {
+
   width: 100%;
+
+  cursor: pointer;
 }
 
 .speedValue {
+
   font-size: 20px;
+
   margin-top: 8px;
 }
+
+/* =====================================================
+   CONTROL
+   ===================================================== */
 
 .control {
 
@@ -68,6 +115,10 @@ input[type="range"] {
 
   margin: 30px auto;
 }
+
+/* =====================================================
+   BUTTON
+   ===================================================== */
 
 button {
 
@@ -92,53 +143,95 @@ button {
   -webkit-user-select: none;
 
   touch-action: none;
+
+  /* Smooth animation */
+
+  transition:
+
+    transform 0.08s ease,
+
+    background 0.08s ease,
+
+    box-shadow 0.08s ease;
 }
 
-button:active {
+/* =====================================================
+   BUTTON HOVER
+   ===================================================== */
+
+button:hover {
+
+  background: #444;
+
+}
+
+/* =====================================================
+   BUTTON PRESSED
+   ===================================================== */
+
+button.pressed {
+
+  transform:
+
+    scale(0.92)
+
+    translateY(4px);
 
   background: #666;
 
-  transform: scale(0.95);
+  box-shadow:
+
+    0 2px 0 #000,
+
+    inset 0 3px 8px rgba(0,0,0,0.6);
+
 }
 
-.forward {
-
-  grid-column: 2;
-}
-
-.left {
-
-  grid-column: 1;
-  grid-row: 2;
-}
+/* =====================================================
+   STOP BUTTON
+   ===================================================== */
 
 .stop {
 
-  grid-column: 2;
-  grid-row: 2;
-
   background: #8b0000;
+
 }
 
-.right {
+.stop:hover {
 
-  grid-column: 3;
-  grid-row: 2;
+  background: #a00000;
+
 }
 
-.backward {
+.stop.pressed {
 
-  grid-column: 2;
-  grid-row: 3;
+  background: #ff2020;
+
+  transform:
+
+    scale(0.92)
+
+    translateY(4px);
+
 }
 
-.connected {
-  color: #00ff66;
+/* =====================================================
+   ACTIVE MOVEMENT
+   ===================================================== */
+
+button.active {
+
+  background: #555;
+
+  box-shadow:
+
+    0 0 15px rgba(255,255,255,0.25);
+
 }
 
-.disconnected {
-  color: #ff4444;
-}
+/* =====================================================
+   INFO
+   ===================================================== */
 
 .info {
 
@@ -184,7 +277,9 @@ STOP
 
 </div>
 
-<!-- SPEED -->
+<!-- =================================================
+     SPEED
+     ================================================= -->
 
 <div class="speedBox">
 
@@ -205,13 +300,16 @@ STOP
 
 </div>
 
-<!-- CONTROL -->
+<!-- =================================================
+     CONTROL
+     ================================================= -->
 
 <div class="control">
 
 <button
   class="forward"
-  data-command="W_ON">
+  data-command="W_ON"
+  data-key="w">
 
 W
 
@@ -219,7 +317,8 @@ W
 
 <button
   class="left"
-  data-command="A_ON">
+  data-command="A_ON"
+  data-key="a">
 
 A
 
@@ -235,7 +334,8 @@ STOP
 
 <button
   class="right"
-  data-command="D_ON">
+  data-command="D_ON"
+  data-key="d">
 
 D
 
@@ -243,7 +343,8 @@ D
 
 <button
   class="backward"
-  data-command="S_ON">
+  data-command="S_ON"
+  data-key="s">
 
 S
 
@@ -281,37 +382,47 @@ Release = STOP
 
 <script>
 
-// =====================================================
-// MQTT
-// =====================================================
+/* =====================================================
+   MQTT
+   ===================================================== */
 
 const MQTT_BROKER =
 "wss://broker.hivemq.com:8884/mqtt";
 
-// สำคัญ: รถใหม่ใช้ car4
 const MQTT_TOPIC =
 "esp/car4";
 
 const client =
 mqtt.connect(MQTT_BROKER);
 
-// =====================================================
-// STATUS
-// =====================================================
+/* =====================================================
+   ELEMENTS
+   ===================================================== */
 
 const mqttStatus =
-document.getElementById("mqttStatus");
+document.getElementById(
+  "mqttStatus"
+);
 
 const carStatus =
-document.getElementById("carStatus");
+document.getElementById(
+  "carStatus"
+);
 
-// =====================================================
-// MQTT CONNECT
-// =====================================================
+const buttons =
+document.querySelectorAll(
+  "[data-command]"
+);
+
+/* =====================================================
+   MQTT CONNECT
+   ===================================================== */
 
 client.on("connect", function() {
 
-  console.log("MQTT CONNECTED");
+  console.log(
+    "MQTT CONNECTED"
+  );
 
   mqttStatus.textContent =
   "CONNECTED";
@@ -340,9 +451,9 @@ client.on("close", function() {
 
 });
 
-// =====================================================
-// SEND COMMAND
-// =====================================================
+/* =====================================================
+   SEND COMMAND
+   ===================================================== */
 
 function sendCommand(command) {
 
@@ -368,9 +479,9 @@ function sendCommand(command) {
   updateStatus(command);
 }
 
-// =====================================================
-// STATUS DISPLAY
-// =====================================================
+/* =====================================================
+   CAR STATUS
+   ===================================================== */
 
 function updateStatus(command) {
 
@@ -405,29 +516,52 @@ function updateStatus(command) {
   }
 }
 
-// =====================================================
-// BUTTON CONTROL
-// =====================================================
+/* =====================================================
+   BUTTON PRESS EFFECT
+   ===================================================== */
 
-const buttons =
-document.querySelectorAll(
-  "[data-command]"
-);
+function pressButton(button) {
+
+  button.classList.add(
+    "pressed"
+  );
+
+  button.classList.add(
+    "active"
+  );
+}
+
+/* =====================================================
+   BUTTON RELEASE EFFECT
+   ===================================================== */
+
+function releaseButton(button) {
+
+  button.classList.remove(
+    "pressed"
+  );
+
+  button.classList.remove(
+    "active"
+  );
+}
+
+/* =====================================================
+   MOUSE CONTROL
+   ===================================================== */
 
 buttons.forEach(function(button) {
 
   const command =
   button.dataset.command;
 
-  // -------------------------
-  // MOUSE
-  // -------------------------
-
   button.addEventListener(
     "mousedown",
     function(event) {
 
       event.preventDefault();
+
+      pressButton(button);
 
       sendCommand(command);
 
@@ -440,6 +574,8 @@ buttons.forEach(function(button) {
 
       event.preventDefault();
 
+      releaseButton(button);
+
       sendCommand("STOP");
 
     }
@@ -449,20 +585,24 @@ buttons.forEach(function(button) {
     "mouseleave",
     function() {
 
+      releaseButton(button);
+
       sendCommand("STOP");
 
     }
   );
 
-  // -------------------------
-  // TOUCH
-  // -------------------------
+  /* =================================================
+     TOUCH CONTROL
+     ================================================= */
 
   button.addEventListener(
     "touchstart",
     function(event) {
 
       event.preventDefault();
+
+      pressButton(button);
 
       sendCommand(command);
 
@@ -475,6 +615,8 @@ buttons.forEach(function(button) {
 
       event.preventDefault();
 
+      releaseButton(button);
+
       sendCommand("STOP");
 
     }
@@ -486,6 +628,8 @@ buttons.forEach(function(button) {
 
       event.preventDefault();
 
+      releaseButton(button);
+
       sendCommand("STOP");
 
     }
@@ -493,24 +637,70 @@ buttons.forEach(function(button) {
 
 });
 
-// =====================================================
-// STOP BUTTON
-// =====================================================
+/* =====================================================
+   STOP BUTTON
+   ===================================================== */
 
-document
-.getElementById("stopButton")
-.addEventListener(
-  "click",
+const stopButton =
+document.getElementById(
+  "stopButton"
+);
+
+stopButton.addEventListener(
+  "mousedown",
   function() {
+
+    pressButton(
+      stopButton
+    );
 
     sendCommand("STOP");
 
   }
 );
 
-// =====================================================
-// KEYBOARD
-// =====================================================
+stopButton.addEventListener(
+  "mouseup",
+  function() {
+
+    releaseButton(
+      stopButton
+    );
+
+  }
+);
+
+stopButton.addEventListener(
+  "touchstart",
+  function(event) {
+
+    event.preventDefault();
+
+    pressButton(
+      stopButton
+    );
+
+    sendCommand("STOP");
+
+  }
+);
+
+stopButton.addEventListener(
+  "touchend",
+  function(event) {
+
+    event.preventDefault();
+
+    releaseButton(
+      stopButton
+    );
+
+  }
+);
+
+/* =====================================================
+   KEYBOARD
+   ===================================================== */
 
 let keyState = {};
 
@@ -522,53 +712,65 @@ document.addEventListener(
     event.key.toLowerCase();
 
     if (
-      key === "w" ||
-      key === "a" ||
-      key === "s" ||
-      key === "d"
+      key !== "w" &&
+      key !== "a" &&
+      key !== "s" &&
+      key !== "d"
     ) {
 
-      event.preventDefault();
+      return;
+    }
 
-      if (keyState[key]) {
+    event.preventDefault();
 
-        return;
-      }
+    if (keyState[key]) {
 
-      keyState[key] = true;
+      return;
+    }
 
-      if (key === "w") {
+    keyState[key] = true;
 
-        sendCommand("W_ON");
+    const button =
+    document.querySelector(
+      '[data-key="' + key + '"]'
+    );
 
-      }
+    if (button) {
 
-      else if (key === "a") {
+      pressButton(button);
 
-        sendCommand("A_ON");
+    }
 
-      }
+    if (key === "w") {
 
-      else if (key === "s") {
+      sendCommand("W_ON");
 
-        sendCommand("S_ON");
+    }
 
-      }
+    else if (key === "a") {
 
-      else if (key === "d") {
+      sendCommand("A_ON");
 
-        sendCommand("D_ON");
+    }
 
-      }
+    else if (key === "s") {
+
+      sendCommand("S_ON");
+
+    }
+
+    else if (key === "d") {
+
+      sendCommand("D_ON");
 
     }
 
   }
 );
 
-// =====================================================
-// KEY RELEASE
-// =====================================================
+/* =====================================================
+   KEY RELEASE
+   ===================================================== */
 
 document.addEventListener(
   "keyup",
@@ -578,26 +780,38 @@ document.addEventListener(
     event.key.toLowerCase();
 
     if (
-      key === "w" ||
-      key === "a" ||
-      key === "s" ||
-      key === "d"
+      key !== "w" &&
+      key !== "a" &&
+      key !== "s" &&
+      key !== "d"
     ) {
 
-      event.preventDefault();
+      return;
+    }
 
-      keyState[key] = false;
+    event.preventDefault();
 
-      sendCommand("STOP");
+    keyState[key] = false;
+
+    const button =
+    document.querySelector(
+      '[data-key="' + key + '"]'
+    );
+
+    if (button) {
+
+      releaseButton(button);
 
     }
+
+    sendCommand("STOP");
 
   }
 );
 
-// =====================================================
-// SPEED
-// =====================================================
+/* =====================================================
+   SPEED SLIDER
+   ===================================================== */
 
 const speedSlider =
 document.getElementById(
@@ -626,15 +840,23 @@ speedSlider.addEventListener(
   }
 );
 
-// =====================================================
-// SAFETY STOP
-// =====================================================
+/* =====================================================
+   SAFETY STOP
+   ===================================================== */
 
 window.addEventListener(
   "blur",
   function() {
 
     sendCommand("STOP");
+
+    buttons.forEach(
+      function(button) {
+
+        releaseButton(button);
+
+      }
+    );
 
   }
 );
@@ -644,3 +866,4 @@ window.addEventListener(
 </body>
 
 </html>
+
